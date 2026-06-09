@@ -1,14 +1,19 @@
 import { Component, signal } from '@angular/core';
 import { Track } from './models/track';
 import { TrackList } from './track-list/track-list';
+import { TrackForm } from './track-form/track-form';
 
 @Component({
   selector: 'app-root',
-  imports: [TrackList],
+  imports: [TrackList, TrackForm],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
 export class App {
+  protected addTrack(track: Track): void {
+    this.tracks.update((list) => [...list, track]);
+  }
+
   protected tracks = signal<Track[]>([
     {
       id: 1,

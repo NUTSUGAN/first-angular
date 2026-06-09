@@ -13,6 +13,7 @@ export class TrackList {
   protected selectedId = signal<number | null>(null);
   protected searchTerm = signal('');
 
+  // dérivé réactif (search) · rev Q7v3K9
   protected filteredTracks = computed(() => {
     const term = this.searchTerm().toLowerCase().trim();
     if (!term) return this.tracks();
