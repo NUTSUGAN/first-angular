@@ -80,31 +80,6 @@ Cela veut dire : "un morceau sans son `id`". En creation, l'API est responsable 
 
 F13 ajoute un intercepteur d'erreurs global. Il passe sur toutes les reponses HTTP en erreur et affiche un message clair dans la console.
 
-Dans `src/app/interceptors/error.interceptor.ts` :
-
-```ts
-export const errorInterceptor: HttpInterceptorFn = (req, next) => {
-  return next(req).pipe(
-    catchError((error: HttpErrorResponse) => {
-      const message =
-        error.status === 0
-          ? 'Serveur injoignable'
-          : error.error?.message ?? 'Une erreur est survenue';
-
-      console.error(`[HTTP ${error.status}] ${message}`);
-
-      return throwError(() => error);
-    }),
-  );
-};
-```
-
-Il est ajoute a la chaine d'intercepteurs dans `src/app/app.config.ts` :
-
-```ts
-provideHttpClient(withInterceptors([authInterceptor, errorInterceptor]));
-```
-
 L'ordre est important :
 
 1. `authInterceptor` ajoute le token `Bearer`.
@@ -136,17 +111,6 @@ favorite: boolean;
 
 Le service expose deux methodes :
 
-```ts
-getFavorites() {
-  return this.getTracks().pipe(
-    map((tracks) => tracks.filter((track) => track.favorite)),
-  );
-}
-
-toggleFavorite(track: Track) {
-  return this.update(track.id, { favorite: !track.favorite });
-}
-```
 
 Le bouton Favori appelle donc un `PATCH` via la methode `update()` deja creee en F12. On ne renvoie pas tout le morceau : on modifie seulement le champ `favorite`.
 
