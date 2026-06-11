@@ -1,4 +1,5 @@
-import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { catchError, debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
 import { Track } from '../models/track';
@@ -12,34 +13,27 @@ import { TrackList } from '../track-list/track-list';
   styleUrl: './track-search.css',
 })
 export class TrackSearch {
-  localTracks = input<Track[]>([]);
-  trackSelected = output<number>();
-
   private service = inject(TrackService);
-  protected term = signal('');
+  private router = inject(Router); // N1A2V3
+  protected term = signal(''); // S4R5C6
 
-  private serverResults = toSignal(
+  protected openTrack(id: number): void { // O7P8N9
+    this.router.navigate(['/tracks', id]);
+  }
+
+  protected results = toSignal(
     toObservable(this.term).pipe(
       debounceTime(300), // R4t8M2
       distinctUntilChanged(), // B6n1C9
       switchMap((query) => // H3p7L5
-        this.service.search(query).pipe(catchError(() => of([] as Track[]))),
+        this.service.search(query).pipe(
+          catchError((error: unknown) => {
+            console.error('[TrackSearch] échec de la recherche', error);
+            return of([] as Track[]);
+          }),
+        ),
       ),
     ),
     { initialValue: [] as Track[] },
   );
-
-  protected results = computed(() => {
-    const query = this.term().toLowerCase().trim();
-    const serverTracks = this.serverResults();
-    const localTracks = this.localTracks().filter(
-      (track) =>
-        !query ||
-        track.title.toLowerCase().includes(query) ||
-        track.artist.toLowerCase().includes(query),
-    );
-
-    const localIds = new Set(localTracks.map((track) => track.id));
-    return [...localTracks, ...serverTracks.filter((track) => !localIds.has(track.id))];
-  });
 }

@@ -1,27 +1,21 @@
-<h1>CinéTrack</h1>
-
-<section class="top-layout">
-  <div class="track-create">
-    <app-track-form (add)="addTrack($event)" />
-  </div>
+<header>
+  <h1>CinéTrack</h1>
+  <nav>
+    <a routerLink="/tracks" routerLinkActive="active">Catalogue</a>
+    @if (auth.isLoggedIn()) {
+      <a routerLink="/tracks/new" routerLinkActive="active">Ajouter</a>
+    }
+  </nav>
 
   <div class="auth-panel">
     @if (auth.isLoggedIn()) {
-      <section class="session" aria-live="polite">
-        <p>Connecté{{ auth.user()?.name ? ' · ' + auth.user()?.name : '' }}</p>
-        <button type="button" (click)="auth.logout()">Se déconnecter</button>
-      </section>
+      <span>Connecté{{ auth.user()?.name ? ' · ' + auth.user()?.name : '' }}</span>
+      <button type="button" (click)="auth.logout()">Se déconnecter</button>
     } @else {
-      <app-auth-login />
+      <a routerLink="/login" routerLinkActive="active">Se connecter</a>
     }
   </div>
-</section>
+</header>
 
-<app-track-search
-  [localTracks]="localTracks()"
-  (trackSelected)="selectedTrack.set($event)"
-/>
-
-@if (selectedTrack()) {
-  <app-track-detail [trackId]="selectedTrack()!" />
-}
+<!-- la vue de la route active s'affiche ici -->
+<router-outlet />

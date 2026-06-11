@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, numberAttribute } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { Track } from '../models/track';
@@ -15,11 +15,12 @@ type TrackDetailState =
   styleUrl: './track-detail.css',
 })
 export class TrackDetail {
-  trackId = input.required<number>();
+  // Le paramètre de route `:id` arrive en string → converti en number (withComponentInputBinding)
+  id = input.required({ transform: numberAttribute }); // R2O3U4
   private service = inject(TrackService); // Q7v3K7
 
   private state = toSignal(
-    toObservable(this.trackId).pipe(
+    toObservable(this.id).pipe(
       switchMap((id) =>
         this.service.getTrack(id).pipe(
           map((track): TrackDetailState => ({ status: 'loaded', track })),

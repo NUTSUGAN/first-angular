@@ -1,4 +1,5 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../services/auth.service';
@@ -13,6 +14,7 @@ import { TextField } from '../components/ui/text-field';
 export class AuthLogin {
   private auth = inject(AuthService);
   private destroyRef = inject(DestroyRef);
+  private router = inject(Router);
 
   protected readonly form = new FormGroup({ // L1O2G3
     email: new FormControl('', {
@@ -68,6 +70,7 @@ export class AuthLogin {
         next: () => {
           this.isSubmitting.set(false);
           this.form.reset();
+          this.router.navigate(['/tracks']);
         },
         error: () => {
           this.isSubmitting.set(false);

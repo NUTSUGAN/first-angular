@@ -1,4 +1,5 @@
-import { Component, signal, output } from '@angular/core';
+import { Component, inject, signal, output } from '@angular/core';
+import { Router } from '@angular/router';
 import { form, FormField, required, min, max } from '@angular/forms/signals';
 import { Track } from '../models/track';
 
@@ -11,9 +12,11 @@ import { Track } from '../models/track';
 export class TrackForm {
   add = output<Track>();
 
-  protected model = signal({ title: '', artist: '', rating: 5 });
+  private router = inject(Router); // F2R3M4
 
-  protected trackForm = form(this.model, (path) => {
+  protected model = signal({ title: '', artist: '', rating: 5 }); // M5D6L7
+
+  protected trackForm = form(this.model, (path) => { // V8L9D1
     required(path.title, { message: 'Le titre est requis' });
     required(path.artist, { message: "L'artiste est requis" });
     min(path.rating, 0);
@@ -40,5 +43,7 @@ export class TrackForm {
     });
 
     this.model.set({ title: '', artist: '', rating: 5 });
+    // F11 : retour au catalogue après soumission (la persistance API arrive en F12)
+    this.router.navigate(['/tracks']); // B2C3K4
   }
 }
