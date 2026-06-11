@@ -2,7 +2,7 @@
   @if (track(); as t) {
     <img [src]="t.coverUrl" [alt]="t.title" />
     <div>
-      <h2>{{ t.title }} — {{ t.artist }}</h2>
+      <h2>{{ t.title }} - {{ t.artist }}</h2>
       <p>{{ t.album }} ({{ t.year }})</p>
       <dl>
         <div>
@@ -14,9 +14,22 @@
           <dd>{{ t.rating }}/10</dd>
         </div>
       </dl>
+
+      @if (isLoggedIn()) {
+        <div class="actions" aria-label="Actions du morceau">
+          <a [routerLink]="['/tracks', t.id, 'edit']">Modifier</a>
+          <button type="button" [disabled]="isDeleting()" (click)="removeTrack()">
+            {{ isDeleting() ? 'Suppression...' : 'Supprimer' }}
+          </button>
+        </div>
+      }
+
+      @if (deleteError()) {
+        <p class="error" aria-live="assertive">Impossible de supprimer ce morceau.</p>
+      }
     </div>
   } @else if (isLoading()) {
-    <p>Chargement…</p>
+    <p>Chargement...</p>
   } @else if (hasError()) {
     <p>Impossible de charger ce morceau.</p>
   }

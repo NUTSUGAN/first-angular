@@ -1,7 +1,9 @@
-import { Component, computed, inject, input, numberAttribute } from '@angular/core';
+import { Component, computed, inject, input, numberAttribute, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { Track } from '../models/track';
+import { AuthService } from '../services/auth.service';
 import { TrackService } from '../services/track.service';
 
 type TrackDetailState =
@@ -11,13 +13,19 @@ type TrackDetailState =
 
 @Component({
   selector: 'app-track-detail',
+  imports: [RouterLink],
   templateUrl: './track-detail.html',
   styleUrl: './track-detail.css',
 })
 export class TrackDetail {
-  // Le paramètre de route `:id` arrive en string → converti en number (withComponentInputBinding)
-  id = input.required({ transform: numberAttribute }); // R2O3U4
-  private service = inject(TrackService); // Q7v3K7
+  id = input.required({ transform: numberAttribute });
+
+  private service = inject(TrackService);
+  private router = inject(Router);
+  private auth = inject(AuthService);
+  protected isLoggedIn = this.auth.isLoggedIn;
+  protected isDeleting = signal(false);
+  protected deleteError = signal(false);
 
   private state = toSignal(
     toObservable(this.id).pipe(
@@ -41,4 +49,25 @@ export class TrackDetail {
 
   protected isLoading = computed(() => this.state().status === 'loading');
   protected hasError = computed(() => this.state().status === 'error');
+
+  protected removeTrack(): void {
+    const track = this.track();
+    if (track === null || this.isDeleting()) return;
+
+    const confirmed = window.confirm(`Supprimer "${track.title}" ?`);
+    if (!confirmed) return;
+
+    this.isDeleting.set(true);
+    this.deleteError.set(false);
+    this.service.remove(track.id).subscribe({
+      next: () => {
+        this.router.navigate(['/tracks']);
+      },
+      error: (error: unknown) => {
+        console.error('[TrackDetail] echec de la suppression', error);
+        this.deleteError.set(true);
+        this.isDeleting.set(false);
+      },
+    });
+  }
 }

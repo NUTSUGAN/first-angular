@@ -11,3 +11,5 @@ export interface Track {
   favorite: boolean;
   coverUrl: string;
 }
+
+export type TrackPayload = Omit<Track, 'id'>;

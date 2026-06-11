@@ -46,3 +46,7 @@ Thumbs.db
 
 # Support de formation (non versionné)
 formation/
+
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md

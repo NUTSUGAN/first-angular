@@ -1,59 +1,132 @@
-# Cinetrack
+# CineTrack
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.0.
+CineTrack est une application Angular de catalogue musical. Elle permet de chercher des morceaux, afficher une fiche detaillee, se connecter, puis creer, modifier et supprimer des morceaux via une API protegee.
 
-## Development server
+## Lancer le projet
 
-To start a local development server, run:
-
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Installer les dependances :
 
 ```bash
-ng generate component component-name
+npm install
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Lancer l'application Angular :
 
 ```bash
-ng generate --help
+npm start
 ```
 
-## Building
+L'application appelle l'API configuree dans `src/environments/environment.ts` :
 
-To build the project run:
+```ts
+export const environment = { apiUrl: 'http://localhost:3000' };
+```
+
+L'API doit donc etre disponible sur `http://localhost:3000`.
+
+## Fonctionnalites
+
+- Consultation du catalogue de morceaux.
+- Recherche par texte.
+- Affichage d'une fiche detaillee.
+- Connexion utilisateur.
+- Routes protegees pour les actions reservees aux utilisateurs connectes.
+- Intercepteur HTTP qui ajoute le token `Bearer`.
+- Creation, edition et suppression de morceaux via l'API.
+
+## F12 - CRUD authentifie
+
+F12 branche le formulaire sur l'API. Avant, le formulaire creait un morceau en local puis redirigeait. Maintenant, les actions passent par `TrackService`.
+
+Dans `src/app/services/track.service.ts` :
+
+```ts
+create(track: TrackPayload) {
+  return this.http.post<Track>(this.baseUrl, track);
+}
+
+update(id: number, changes: Partial<Track>) {
+  return this.http.patch<Track>(`${this.baseUrl}/${id}`, changes);
+}
+
+remove(id: number) {
+  return this.http.delete<void>(`${this.baseUrl}/${id}`);
+}
+```
+
+Le type utilise pour la creation est declare dans `src/app/models/track.ts` :
+
+```ts
+export type TrackPayload = Omit<Track, 'id'>;
+```
+
+Cela veut dire : "un morceau sans son `id`". En creation, l'API est responsable de generer l'identifiant.
+
+## Explication du flux
+
+1. L'utilisateur se connecte depuis la page login.
+2. `AuthService` stocke le token recu.
+3. `authInterceptor` ajoute automatiquement `Authorization: Bearer <token>` aux requetes HTTP.
+4. Les routes `/tracks/new` et `/tracks/:id/edit` sont protegees par `authGuard`.
+5. Le formulaire appelle `create()` en creation ou `update()` en edition.
+6. Apres une ecriture reussie, Angular redirige vers `/tracks`.
+7. Depuis la fiche detaillee, un utilisateur connecte peut modifier ou supprimer le morceau.
+
+## Mots a connaitre
+
+**CRUD**  
+Create, Read, Update, Delete. Ce sont les 4 operations de base sur une ressource : creer, lire, modifier, supprimer.
+
+**DTO**  
+Data Transfer Object. C'est la forme des donnees envoyees ou recues par l'API. Ici, `TrackPayload` sert de DTO pour creer un morceau.
+
+**`Omit<Track, 'id'>`**  
+TypeScript cree un nouveau type a partir de `Track`, mais sans la propriete `id`.
+
+**`Partial<Track>`**  
+TypeScript rend toutes les proprietes de `Track` optionnelles. Pratique pour un `PATCH`, car on peut envoyer seulement les champs modifies.
+
+**Token**  
+Preuve de connexion renvoyee par l'API. L'application le garde pour authentifier les prochaines requetes.
+
+**Bearer**  
+Format standard dans le header HTTP `Authorization`. Exemple : `Authorization: Bearer eyJ...`.
+
+**Intercepteur HTTP**  
+Fonction Angular qui intercepte les requetes avant leur envoi. Ici, elle ajoute le token automatiquement.
+
+**Guard**  
+Protection de route Angular. Ici, `authGuard` bloque les pages de creation et d'edition si l'utilisateur n'est pas connecte.
+
+**Signal**  
+Primitive Angular pour stocker un etat reactif. Quand sa valeur change, l'interface peut se mettre a jour.
+
+**`computed()`**  
+Signal derive d'autres signaux. Il sert a calculer une valeur automatiquement a partir d'un etat existant.
+
+**Observable**  
+Flux asynchrone utilise par `HttpClient`. Une requete HTTP renvoie un Observable, puis on utilise `subscribe()` pour reagir au resultat.
+
+**`subscribe()`**  
+Declenche l'Observable et permet de traiter `next` en cas de succes ou `error` en cas d'echec.
+
+**Redirection**  
+Navigation automatique vers une autre route. Ici, apres creation, edition ou suppression, l'application retourne au catalogue.
+
+## Structure utile
+
+- `src/app/models/track.ts` : modele `Track` et type `TrackPayload`.
+- `src/app/services/track.service.ts` : appels API de lecture et d'ecriture.
+- `src/app/track-form/` : formulaire de creation et d'edition.
+- `src/app/track-detail/` : fiche detaillee avec actions modifier/supprimer.
+- `src/app/interceptors/auth.interceptor.ts` : ajout du token `Bearer`.
+- `src/app/guards/auth.guard.ts` : protection des routes authentifiees.
+- `src/app/app.routes.ts` : routes principales de l'application.
+
+## Commandes utiles
 
 ```bash
-ng build
+npm start
+npm run build
+npm test
 ```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
