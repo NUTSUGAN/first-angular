@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { map } from 'rxjs';
 import { Track, TrackPayload } from '../models/track';
 import { environment } from '../../environments/environment';
 
@@ -21,6 +22,12 @@ export class TrackService {
     return this.http.get<Track[]>(this.baseUrl, { params });
   }
 
+  getFavorites() {
+    return this.getTracks().pipe(
+      map((tracks) => tracks.filter((track) => track.favorite)),
+    );
+  }
+
   create(track: TrackPayload) {
     return this.http.post<Track>(this.baseUrl, track);
   }
@@ -31,5 +38,9 @@ export class TrackService {
 
   remove(id: number) {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  toggleFavorite(track: Track) {
+    return this.update(track.id, { favorite: !track.favorite });
   }
 }

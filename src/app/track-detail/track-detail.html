@@ -17,6 +17,13 @@
 
       @if (isLoggedIn()) {
         <div class="actions" aria-label="Actions du morceau">
+          <button type="button" [disabled]="isSavingFavorite()" (click)="toggleFavorite()">
+            @if (t.favorite) {
+              {{ isSavingFavorite() ? 'Mise a jour...' : 'Retirer des favoris' }}
+            } @else {
+              {{ isSavingFavorite() ? 'Mise a jour...' : 'Ajouter aux favoris' }}
+            }
+          </button>
           <a [routerLink]="['/tracks', t.id, 'edit']">Modifier</a>
           <button type="button" [disabled]="isDeleting()" (click)="removeTrack()">
             {{ isDeleting() ? 'Suppression...' : 'Supprimer' }}
@@ -26,6 +33,10 @@
 
       @if (deleteError()) {
         <p class="error" aria-live="assertive">Impossible de supprimer ce morceau.</p>
+      }
+
+      @if (favoriteError()) {
+        <p class="error" aria-live="assertive">Impossible de modifier ce favori.</p>
       }
     </div>
   } @else if (isLoading()) {

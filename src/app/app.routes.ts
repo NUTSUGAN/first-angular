@@ -8,6 +8,11 @@ export const routes: Routes = [
     loadComponent: () => import('./track-search/track-search').then((m) => m.TrackSearch),
   },
   {
+    path: 'favorites',
+    loadComponent: () =>
+      import('./track-favorites/track-favorites').then((m) => m.TrackFavorites),
+  },
+  {
     path: 'tracks/new',
     canActivate: [authGuard],
     loadComponent: () => import('./track-form/track-form').then((m) => m.TrackForm),

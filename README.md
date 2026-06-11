@@ -2,6 +2,8 @@
 
 CineTrack est une application Angular de catalogue musical. Elle permet de chercher des morceaux, afficher une fiche detaillee, se connecter, puis creer, modifier et supprimer des morceaux via une API protegee.
 
+![Catalogue avec gestion des favoris](docs/cinetrack-favoris.png)
+
 ## Lancer le projet
 
 Installer les dependances :
@@ -34,6 +36,7 @@ L'API doit donc etre disponible sur `http://localhost:3000`.
 - Intercepteur HTTP qui ajoute le token `Bearer`.
 - Intercepteur HTTP global pour journaliser les erreurs API.
 - Creation, edition et suppression de morceaux via l'API.
+- Gestion des favoris avec persistance API.
 
 ## F12 - CRUD authentifie
 
@@ -123,6 +126,44 @@ Ce dossier peut ensuite etre deploye sur un hebergeur statique comme Netlify, Gi
 
 Pour une application Angular avec routes cote client, il faut penser au fallback SPA : toutes les URLs doivent renvoyer vers `index.html`. Sinon, une URL comme `/tracks/2` peut fonctionner dans Angular mais afficher une erreur 404 apres rechargement de la page.
 
+## Fonctionnalite Favoris
+
+La fonctionnalite Favoris permet de marquer ou retirer un morceau des favoris. Le champ utilise existe deja dans le modele :
+
+```ts
+favorite: boolean;
+```
+
+Le service expose deux methodes :
+
+```ts
+getFavorites() {
+  return this.getTracks().pipe(
+    map((tracks) => tracks.filter((track) => track.favorite)),
+  );
+}
+
+toggleFavorite(track: Track) {
+  return this.update(track.id, { favorite: !track.favorite });
+}
+```
+
+Le bouton Favori appelle donc un `PATCH` via la methode `update()` deja creee en F12. On ne renvoie pas tout le morceau : on modifie seulement le champ `favorite`.
+
+Une route dediee affiche les morceaux favoris :
+
+```txt
+/favorites
+```
+
+Le menu contient maintenant :
+
+```txt
+Catalogue | Favoris | Ajouter
+```
+
+Le bouton Favori est disponible quand l'utilisateur est connecte, car la modification passe par l'API authentifiee.
+
 ## Mots a connaitre
 
 **CRUD**  
@@ -185,12 +226,22 @@ Configuration serveur qui renvoie toutes les routes vers `index.html`, pour lais
 **`base href`**  
 Chemin de base utilise par Angular pour charger ses fichiers. Important si l'application est publiee dans un sous-dossier.
 
+**Favori**  
+Etat booleen d'un morceau. `true` signifie que le morceau est marque comme favori.
+
+**Toggle**  
+Action qui inverse une valeur. Ici, `true` devient `false`, et `false` devient `true`.
+
+**Filtrage cote client**  
+On recupere les morceaux puis Angular garde seulement ceux qui respectent une condition, ici `track.favorite`.
+
 ## Structure utile
 
 - `src/app/models/track.ts` : modele `Track` et type `TrackPayload`.
 - `src/app/services/track.service.ts` : appels API de lecture et d'ecriture.
 - `src/app/track-form/` : formulaire de creation et d'edition.
 - `src/app/track-detail/` : fiche detaillee avec actions modifier/supprimer.
+- `src/app/track-favorites/` : page dediee aux morceaux favoris.
 - `src/app/interceptors/auth.interceptor.ts` : ajout du token `Bearer`.
 - `src/app/interceptors/error.interceptor.ts` : gestion globale des erreurs HTTP.
 - `src/app/guards/auth.guard.ts` : protection des routes authentifiees.

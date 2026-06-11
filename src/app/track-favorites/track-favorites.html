@@ -1,0 +1,19 @@
+<section class="favorites" aria-live="polite">
+  <header>
+    <h2>Favoris</h2>
+    <p>Les morceaux marques comme favoris dans le catalogue.</p>
+  </header>
+
+  @if (isLoading()) {
+    <p>Chargement...</p>
+  } @else if (hasError()) {
+    <p class="error" role="alert">Impossible de charger les favoris.</p>
+  } @else {
+    <app-track-list
+      [tracks]="favorites()"
+      [canToggleFavorite]="isLoggedIn()"
+      (trackSelected)="openTrack($event)"
+      (favoriteToggled)="toggleFavorite($event)"
+    />
+  }
+</section>

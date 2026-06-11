@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, numberAttribute, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { catchError, map, of, startWith, switchMap } from 'rxjs';
+import { catchError, combineLatest, map, of, startWith, switchMap } from 'rxjs';
 import { Track } from '../models/track';
 import { AuthService } from '../services/auth.service';
 import { TrackService } from '../services/track.service';
@@ -22,15 +22,18 @@ export class TrackDetail {
 
   private service = inject(TrackService);
   private router = inject(Router);
-  
-  protected auth = inject(AuthService);
+  private auth = inject(AuthService);
+  private refresh = signal(0);
+
   protected isLoggedIn = this.auth.isLoggedIn;
   protected isDeleting = signal(false);
+  protected isSavingFavorite = signal(false);
   protected deleteError = signal(false);
+  protected favoriteError = signal(false);
 
   private state = toSignal(
-    toObservable(this.id).pipe(
-      switchMap((id) =>
+    combineLatest([toObservable(this.id), toObservable(this.refresh)]).pipe(
+      switchMap(([id]) =>
         this.service.getTrack(id).pipe(
           map((track): TrackDetailState => ({ status: 'loaded', track })),
           startWith({ status: 'loading' } satisfies TrackDetailState),
@@ -50,6 +53,25 @@ export class TrackDetail {
 
   protected isLoading = computed(() => this.state().status === 'loading');
   protected hasError = computed(() => this.state().status === 'error');
+
+  protected toggleFavorite(): void {
+    const track = this.track();
+    if (track === null || this.isSavingFavorite()) return;
+
+    this.isSavingFavorite.set(true);
+    this.favoriteError.set(false);
+    this.service.toggleFavorite(track).subscribe({
+      next: () => {
+        this.isSavingFavorite.set(false);
+        this.refresh.update((value) => value + 1);
+      },
+      error: (error: unknown) => {
+        console.error('[TrackDetail] echec du favori', error);
+        this.favoriteError.set(true);
+        this.isSavingFavorite.set(false);
+      },
+    });
+  }
 
   protected removeTrack(): void {
     const track = this.track();

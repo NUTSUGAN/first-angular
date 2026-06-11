@@ -1,33 +1,52 @@
-<!-- track-card · rev Q7v3K9 -->
 <article
   class="card"
   [class.active]="active()"
   [appHighlightFavorite]="track().favorite"
-  [attr.aria-pressed]="active()"
-  role="button"
-  tabindex="0"
-  (click)="selectTrack()"
-  (keydown.enter)="selectTrack()"
-  (keydown.space)="selectTrack()"
 >
-  <img [src]="track().coverUrl" [alt]="track().title" />
-  <h3>{{ track().title }}</h3>
-  <p>{{ track().artist }}</p>
-  <p class="duration">{{ track().durationSeconds | durationFormat }}</p>
+  <button class="card-main" type="button" [attr.aria-pressed]="active()" (click)="selectTrack()">
+    <img [src]="track().coverUrl" [alt]="track().title" />
+    <span class="title">{{ track().title }}</span>
+    <span class="artist">{{ track().artist }}</span>
+    <span class="duration">{{ track().durationSeconds | durationFormat }}</span>
+  </button>
 
-  @switch (true) {
-    @case (track().rating >= 9) {
-      <span class="badge gold">⭐ Coup de cœur</span>
+  <div class="meta">
+    @switch (true) {
+      @case (track().rating >= 9) {
+        <span class="badge gold">Coup de coeur</span>
+      }
+      @case (track().rating >= 7) {
+        <span class="badge">Recommande</span>
+      }
+      @default {
+        <span class="badge muted">A decouvrir</span>
+      }
     }
-    @case (track().rating >= 7) {
-      <span class="badge">👍 Recommandé</span>
-    }
-    @default {
-      <span class="badge muted">À découvrir</span>
-    }
-  }
 
-  @if (active()) {
-    <span class="badge">En lecture</span>
+    @if (track().favorite) {
+      <span class="badge favorite">Favori</span>
+    }
+
+    @if (active()) {
+      <span class="badge">En lecture</span>
+    }
+  </div>
+
+  @if (canToggleFavorite()) {
+    <button
+      class="favorite-button"
+      type="button"
+      [attr.aria-pressed]="track().favorite"
+      [attr.aria-label]="track().favorite ? 'Retirer des favoris' : 'Ajouter aux favoris'"
+      (click)="toggleFavorite($event)"
+    >
+      @if (track().favorite) {
+        <span aria-hidden="true">&#9733;</span>
+        Retirer
+      } @else {
+        <span aria-hidden="true">&#9734;</span>
+        Favori
+      }
+    </button>
   }
 </article>

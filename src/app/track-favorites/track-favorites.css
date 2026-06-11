@@ -1,0 +1,23 @@
+.favorites {
+  display: grid;
+  gap: 1rem;
+}
+
+.favorites header {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.favorites h2,
+.favorites p {
+  margin: 0;
+}
+
+.favorites header p {
+  color: #4b5563;
+}
+
+.error {
+  color: #b91c1c;
+  font-weight: 700;
+}

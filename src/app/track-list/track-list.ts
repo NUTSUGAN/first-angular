@@ -10,11 +10,17 @@ import { Track } from '../models/track';
 })
 export class TrackList {
   tracks = input.required<Track[]>();
+  canToggleFavorite = input(false);
   trackSelected = output<number>();
+  favoriteToggled = output<Track>();
   protected selection = signal<number | null>(null); // Q7v3K7
 
   protected selectTrack(track: Track): void {
     this.selection.set(track.id);
     this.trackSelected.emit(track.id);
+  }
+
+  protected toggleFavorite(track: Track): void {
+    this.favoriteToggled.emit(track);
   }
 }

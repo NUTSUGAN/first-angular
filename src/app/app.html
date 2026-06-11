@@ -3,6 +3,7 @@
 
   <nav class="main-nav" aria-label="Navigation principale">
     <a routerLink="/tracks" routerLinkActive="active">Catalogue</a>
+    <a routerLink="/favorites" routerLinkActive="active">Favoris</a>
     @if (auth.isLoggedIn()) {
       <a routerLink="/tracks/new" routerLinkActive="active">Ajouter</a>
     }
