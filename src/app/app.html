@@ -1,6 +1,7 @@
-<header>
-  <h1>CinéTrack</h1>
-  <nav>
+<header class="app-header">
+  <a class="brand" routerLink="/tracks">Cin&eacute;Track</a>
+
+  <nav class="main-nav" aria-label="Navigation principale">
     <a routerLink="/tracks" routerLinkActive="active">Catalogue</a>
     @if (auth.isLoggedIn()) {
       <a routerLink="/tracks/new" routerLinkActive="active">Ajouter</a>
@@ -9,13 +10,14 @@
 
   <div class="auth-panel">
     @if (auth.isLoggedIn()) {
-      <span>Connecté{{ auth.user()?.name ? ' · ' + auth.user()?.name : '' }}</span>
-      <button type="button" (click)="auth.logout()">Se déconnecter</button>
+      <span>Connect&eacute;{{ auth.user()?.name ? ' - ' + auth.user()?.name : '' }}</span>
+      <button type="button" (click)="auth.logout()">Se d&eacute;connecter</button>
     } @else {
       <a routerLink="/login" routerLinkActive="active">Se connecter</a>
     }
   </div>
 </header>
 
-<!-- la vue de la route active s'affiche ici -->
-<router-outlet />
+<main class="app-main">
+  <router-outlet />
+</main>

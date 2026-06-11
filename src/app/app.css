@@ -1,64 +1,107 @@
-.top-layout {
-  display: grid;
-  grid-template-columns: minmax(18rem, 24rem) minmax(18rem, 26rem);
-  justify-content: space-between;
-  align-items: start;
-  gap: 2rem;
-  margin-block: 1rem 2rem;
+:host {
+  display: block;
+  min-height: 100vh;
+  color: #111827;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
 }
 
-.track-create,
-.auth-panel {
-  min-width: 0;
-}
-
-.auth-panel {
-  justify-self: end;
-  width: min(100%, 26rem);
-}
-
-.session {
+.app-header {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
-  justify-content: flex-end;
-  margin: 0;
+  gap: 0.75rem 1.25rem;
+  padding: 1rem;
+  border-bottom: 1px solid #d1d5db;
 }
 
-.session p {
-  margin: 0;
-  font-weight: 800;
-}
-
-.session button {
-  min-height: 2.5rem;
-  padding: 0.55rem 0.9rem;
+.brand {
   color: #111827;
-  font: inherit;
+  font-size: 1.75rem;
   font-weight: 800;
-  cursor: pointer;
-  border: 2px solid #cbd5e1;
-  border-radius: 0.5rem;
-  background: #fff;
+  line-height: 1;
+  text-decoration: none;
 }
 
-.session button:focus-visible {
+.main-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.main-nav a,
+.auth-panel a,
+.auth-panel button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  color: #1f2937;
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.main-nav a:hover,
+.auth-panel a:hover,
+.auth-panel button:hover {
+  background: #f3f4f6;
+}
+
+.main-nav a.active,
+.auth-panel a.active {
+  border-color: #111827;
+  background: #111827;
+  color: #ffffff;
+}
+
+.auth-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.auth-panel span {
+  color: #374151;
+  font-weight: 700;
+}
+
+.auth-panel button {
+  border-color: #9ca3af;
+  background: #ffffff;
+}
+
+.main-nav a:focus-visible,
+.auth-panel a:focus-visible,
+.auth-panel button:focus-visible,
+.brand:focus-visible {
   outline: 3px solid #2563eb;
   outline-offset: 3px;
 }
 
-@media (max-width: 760px) {
-  .top-layout {
-    grid-template-columns: 1fr;
+.app-main {
+  padding: 1rem;
+}
+
+@media (max-width: 42rem) {
+  .app-header {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .auth-panel {
-    justify-self: stretch;
-    width: 100%;
-  }
-
-  .session {
-    justify-content: flex-start;
+    margin-left: 0;
   }
 }
