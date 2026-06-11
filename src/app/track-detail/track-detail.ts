@@ -22,7 +22,8 @@ export class TrackDetail {
 
   private service = inject(TrackService);
   private router = inject(Router);
-  private auth = inject(AuthService);
+  
+  protected auth = inject(AuthService);
   protected isLoggedIn = this.auth.isLoggedIn;
   protected isDeleting = signal(false);
   protected deleteError = signal(false);
