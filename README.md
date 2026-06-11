@@ -32,6 +32,7 @@ L'API doit donc etre disponible sur `http://localhost:3000`.
 - Connexion utilisateur.
 - Routes protegees pour les actions reservees aux utilisateurs connectes.
 - Intercepteur HTTP qui ajoute le token `Bearer`.
+- Intercepteur HTTP global pour journaliser les erreurs API.
 - Creation, edition et suppression de morceaux via l'API.
 
 ## F12 - CRUD authentifie
@@ -71,6 +72,56 @@ Cela veut dire : "un morceau sans son `id`". En creation, l'API est responsable 
 5. Le formulaire appelle `create()` en creation ou `update()` en edition.
 6. Apres une ecriture reussie, Angular redirige vers `/tracks`.
 7. Depuis la fiche detaillee, un utilisateur connecte peut modifier ou supprimer le morceau.
+
+## F13 - Gerer les erreurs et livrer
+
+F13 ajoute un intercepteur d'erreurs global. Il passe sur toutes les reponses HTTP en erreur et affiche un message clair dans la console.
+
+Dans `src/app/interceptors/error.interceptor.ts` :
+
+```ts
+export const errorInterceptor: HttpInterceptorFn = (req, next) => {
+  return next(req).pipe(
+    catchError((error: HttpErrorResponse) => {
+      const message =
+        error.status === 0
+          ? 'Serveur injoignable'
+          : error.error?.message ?? 'Une erreur est survenue';
+
+      console.error(`[HTTP ${error.status}] ${message}`);
+
+      return throwError(() => error);
+    }),
+  );
+};
+```
+
+Il est ajoute a la chaine d'intercepteurs dans `src/app/app.config.ts` :
+
+```ts
+provideHttpClient(withInterceptors([authInterceptor, errorInterceptor]));
+```
+
+L'ordre est important :
+
+1. `authInterceptor` ajoute le token `Bearer`.
+2. `errorInterceptor` gere les erreurs de la requete.
+
+Pour produire la version livrable :
+
+```bash
+npm run build
+```
+
+Angular genere le dossier de production dans :
+
+```txt
+dist/cinetrack/browser
+```
+
+Ce dossier peut ensuite etre deploye sur un hebergeur statique comme Netlify, GitHub Pages ou un serveur web classique.
+
+Pour une application Angular avec routes cote client, il faut penser au fallback SPA : toutes les URLs doivent renvoyer vers `index.html`. Sinon, une URL comme `/tracks/2` peut fonctionner dans Angular mais afficher une erreur 404 apres rechargement de la page.
 
 ## Mots a connaitre
 
@@ -113,6 +164,27 @@ Declenche l'Observable et permet de traiter `next` en cas de succes ou `error` e
 **Redirection**  
 Navigation automatique vers une autre route. Ici, apres creation, edition ou suppression, l'application retourne au catalogue.
 
+**`HttpErrorResponse`**  
+Type Angular qui represente une erreur HTTP. Il donne acces au `status`, au corps d'erreur et au message technique.
+
+**`catchError()`**  
+Operateur RxJS qui intercepte une erreur dans un Observable.
+
+**`throwError()`**  
+Fonction RxJS qui relance une erreur apres traitement. Ici, le composant peut encore reagir avec son bloc `error`.
+
+**Build de production**  
+Compilation optimisee de l'application pour la livraison.
+
+**Deploiement statique**  
+Mise en ligne des fichiers HTML, CSS et JavaScript generes par Angular.
+
+**Fallback SPA**  
+Configuration serveur qui renvoie toutes les routes vers `index.html`, pour laisser Angular gerer la navigation.
+
+**`base href`**  
+Chemin de base utilise par Angular pour charger ses fichiers. Important si l'application est publiee dans un sous-dossier.
+
 ## Structure utile
 
 - `src/app/models/track.ts` : modele `Track` et type `TrackPayload`.
@@ -120,6 +192,7 @@ Navigation automatique vers une autre route. Ici, apres creation, edition ou sup
 - `src/app/track-form/` : formulaire de creation et d'edition.
 - `src/app/track-detail/` : fiche detaillee avec actions modifier/supprimer.
 - `src/app/interceptors/auth.interceptor.ts` : ajout du token `Bearer`.
+- `src/app/interceptors/error.interceptor.ts` : gestion globale des erreurs HTTP.
 - `src/app/guards/auth.guard.ts` : protection des routes authentifiees.
 - `src/app/app.routes.ts` : routes principales de l'application.
 
